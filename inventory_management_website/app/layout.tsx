@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/CommonComponents/Navbar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,8 +18,8 @@ export default function RootLayout({
       className={`h-full`}
     >
       <body>
-    <Navbar /> {/* Navbar is safely inside body */}
-    <main>{children}</main>
+    <Navbar /> { /* Navbar is safely inside body */}
+    <main className="pt-24">{children}</main>
     </body>
     </html>
   );
