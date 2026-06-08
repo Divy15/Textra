@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-off-white: #FDFBF7;
+  --color-burgundy: #6B1D2F;
+  --color-camel: #C19A6B;
+}
+
+/* Global utility rules to strip away visible layout scrollbars */
+@layer base {
+  /* Target root body element or viewport containers */
+  html, body {
+    /* Hide scrollbar for Chrome, Safari, Opera and modern Edge */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
