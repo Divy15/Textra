@@ -6,13 +6,11 @@ import { NumericInput } from '../CommonComponent/NumericInput';
 
 interface Partner {
   id: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
+  firstname: string;
+  middlename: string;
+  lastname: string;
   email: string;
-  mobileNo: string;
-  registeredMobileNo: string;
-  registeredEmail: string;
+  mobileno: string;
 }
 
 interface Step1Props {
@@ -23,28 +21,56 @@ interface Step1Props {
 export default function StepUserRegistration({ initialData, onNext }: Step1Props) {
   const [formData, setFormData] = useState({
     registrationType: initialData.registrationType || 'solo',
-    firstName: initialData.firstName || '',
-    middleName: initialData.middleName || '',
-    lastName: initialData.lastName || '',
+    firstname: initialData.firstname || '',
+    middlename: initialData.middlename || '',
+    lastname: initialData.lastname || '',
     email: initialData.email || '',
-    mobileNo: initialData.mobileNo || '',
+    mobileno: initialData.mobileno || '',
   });
 
-  // Partners state rewritten to perfectly match the Solo field structure
   const [partners, setPartners] = useState<Partner[]>(
-    initialData.partners || [
-      { 
-        id: crypto.randomUUID(), 
-        firstName: '', 
-        middleName: '', 
-        lastName: '', 
-        email: '', 
-        mobileNo: '', 
-        registeredMobileNo: '', 
-        registeredEmail: '' 
-      }
-    ]
+    initialData.partners && initialData.partners.length > 0
+      ? initialData.partners
+      : [getEmptyPartner()]
   );
+
+  // Helper to generate a clean slate partner model
+  function getEmptyPartner(): Partner {
+    return {
+      id: crypto.randomUUID(),
+      firstname: '',
+      middlename: '',
+      lastname: '',
+      email: '',
+      mobileno: '',
+    };
+  }
+
+  // FIXED: Erases state completely depending on which type the user switches to
+  const handleTypeChange = (type: 'solo' | 'partnership') => {
+    if (type === 'solo') {
+      // Clear all partners back to default empty state
+      setPartners([getEmptyPartner()]);
+      setFormData({
+        registrationType: 'solo',
+        firstname: '',
+        middlename: '',
+        lastname: '',
+        email: '',
+        mobileno: '',
+      });
+    } else {
+      // Reset solo data structures back to default empty state
+      setFormData({
+        registrationType: 'partnership',
+        firstname: '',
+        middlename: '',
+        lastname: '',
+        email: '',
+        mobileno: '',
+      });
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -63,19 +89,7 @@ export default function StepUserRegistration({ initialData, onNext }: Step1Props
   };
 
   const addPartner = () => {
-    setPartners([
-      ...partners,
-      { 
-        id: crypto.randomUUID(), 
-        firstName: '', 
-        middleName: '', 
-        lastName: '', 
-        email: '', 
-        mobileNo: '', 
-        registeredMobileNo: '', 
-        registeredEmail: '' 
-      },
-    ]);
+    setPartners([...partners, getEmptyPartner()]);
   };
 
   const removePartner = (id: string) => {
@@ -84,15 +98,31 @@ export default function StepUserRegistration({ initialData, onNext }: Step1Props
     }
   };
 
+  // FIXED: Destructures input states seamlessly without cross-polluting payloads
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const finalPayload = {
-      registrationType: formData.registrationType,
-      // Clear out the unused mode's data on submit
-      ...(formData.registrationType === 'solo' ? formData : {}),
-      partners: formData.registrationType === 'partnership' ? partners : [],
-    };
-    onNext(finalPayload);
+  e.preventDefault();
+  
+  let ownersArray = [];
+
+  if (formData.registrationType === 'solo') {
+    // Treat the solo owner as the first and only item in the array
+    ownersArray = [{
+      firstname: formData.firstname,
+      middlename: formData.middlename,
+      lastname: formData.lastname,
+      email: formData.email,
+      mobileno: formData.mobileno,
+    }];
+  } else {
+    // Strip out the local UI 'id' keys from your partners state
+    ownersArray = partners.map(({ id, ...rest }) => rest);
+  }
+
+  const finalPayload = {
+    registrationType: formData.registrationType,
+    owners: ownersArray // Always an array!
+  };
+  onNext(finalPayload); 
   };
 
   return (
@@ -110,43 +140,43 @@ export default function StepUserRegistration({ initialData, onNext }: Step1Props
       </div>
 
       {/* Registration Type Selection */}
-<div>
-  <h4 className="text-sm font-bold uppercase tracking-wider text-gray-500">
-    Registration Type
-  </h4>
-  
-  <div className="grid grid-cols-2 gap-4 p-1 bg-gray-100 rounded-xl" style={{ border: '1px solid #e5e7eb' }}>
-    {/* Solo Ownership Option */}
-    <button
-      type="button"
-      onClick={() => setFormData(prev => ({ ...prev, registrationType: 'solo' }))}
-      className={`flex items-center justify-center gap-3 py-3 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
-        formData.registrationType === 'solo'
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-      }`}
-      style={formData.registrationType === 'solo' ? { border: '1px solid #C19A6B' } : {}}
-    >
-      <User className={`w-5 h-5 ${formData.registrationType === 'solo' ? 'text-[#C19A6B]' : 'text-gray-400'}`} />
-      <span>Solo Ownership</span>
-    </button>
+      <div>
+        <h4 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">
+          Registration Type
+        </h4>
+        
+        <div className="grid grid-cols-2 gap-4 p-1 bg-gray-100 rounded-xl" style={{ border: '1px solid #e5e7eb' }}>
+          {/* Solo Ownership Option */}
+          <button
+            type="button"
+            onClick={() => handleTypeChange('solo')} // Updated handler
+            className={`flex items-center justify-center gap-3 py-3 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
+              formData.registrationType === 'solo'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+            style={formData.registrationType === 'solo' ? { border: '1px solid #C19A6B' } : {}}
+          >
+            <User className={`w-5 h-5 ${formData.registrationType === 'solo' ? 'text-[#C19A6B]' : 'text-gray-400'}`} />
+            <span>Solo Ownership</span>
+          </button>
 
-    {/* Partnership Option */}
-    <button
-      type="button"
-      onClick={() => setFormData(prev => ({ ...prev, registrationType: 'partnership' }))}
-      className={`flex items-center justify-center gap-3 py-3 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
-        formData.registrationType === 'partnership'
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-      }`}
-      style={formData.registrationType === 'partnership' ? { border: '1px solid #C19A6B' } : {}}
-    >
-      <Users className={`w-5 h-5 ${formData.registrationType === 'partnership' ? 'text-[#C19A6B]' : 'text-gray-400'}`} />
-      <span>Partnership</span>
-    </button>
-  </div>
-</div>
+          {/* Partnership Option */}
+          <button
+            type="button"
+            onClick={() => handleTypeChange('partnership')} // Updated handler
+            className={`flex items-center justify-center gap-3 py-3 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
+              formData.registrationType === 'partnership'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+            style={formData.registrationType === 'partnership' ? { border: '1px solid #C19A6B' } : {}}
+          >
+            <Users className={`w-5 h-5 ${formData.registrationType === 'partnership' ? 'text-[#C19A6B]' : 'text-gray-400'}`} />
+            <span>Partnership</span>
+          </button>
+        </div>
+      </div>
 
       {/* Mode A: Solo Proprietary View */}
       <AnimatePresence mode="wait">
@@ -164,18 +194,18 @@ export default function StepUserRegistration({ initialData, onNext }: Step1Props
             </h4>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Input label="First Name" name="firstName" value={formData.firstName} onChange={handleChange} required />
-              <Input label="Middle Name" name="middleName" value={formData.middleName} onChange={handleChange} />
-              <Input label="Last Name" name="lastName" value={formData.lastName} onChange={handleChange} required />
+              <Input label="First Name" name="firstname" value={formData.firstname} onChange={handleChange} required />
+              <Input label="Middle Name" name="middlename" value={formData.middlename} onChange={handleChange} />
+              <Input label="Last Name" name="lastname" value={formData.lastname} onChange={handleChange} required />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input label="Email Address" type="email" name="email" value={formData.email} onChange={handleChange} required />
               <NumericInput 
                 label="Mobile Number" 
-                name="mobileNo" 
-                value={formData.mobileNo} 
-                onChange={(val) => handleDirectFormChange('mobileNo', val)} 
+                name="mobileno" 
+                value={formData.mobileno} 
+                onChange={(val) => handleDirectFormChange('mobileno', val)} 
                 maxLength={10}
                 required 
               />
@@ -211,13 +241,12 @@ export default function StepUserRegistration({ initialData, onNext }: Step1Props
               <AnimatePresence initial={false}>
                 {partners.map((partner, index) => (
                   <motion.div
-                    key={partner.id}
+                    key={index}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 10 }}
                     className={`space-y-6 ${index > 0 ? 'pt-8' : ''}`}
                   >
-                    {/* Flat Section Title Instead of an Outer Box Card */}
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-bold" style={{ color: '#6B1D2F' }}>
                         Partner #{index + 1} Profile
@@ -233,31 +262,29 @@ export default function StepUserRegistration({ initialData, onNext }: Step1Props
                       )}
                     </div>
                     
-                    {/* Row 1: Name Fields (Perfect Match to Solo Layout) */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Input 
                         label="First Name" 
                         name={`partner-firstName-${partner.id}`}
-                        value={partner.firstName}
-                        onChange={(e) => handlePartnerChange(partner.id, 'firstName', e.target.value)}
+                        value={partner.firstname}
+                        onChange={(e) => handlePartnerChange(partner.id, 'firstname', e.target.value)}
                         required
                       />
                       <Input 
                         label="Middle Name" 
                         name={`partner-middleName-${partner.id}`}
-                        value={partner.middleName}
-                        onChange={(e) => handlePartnerChange(partner.id, 'middleName', e.target.value)}
+                        value={partner.middlename}
+                        onChange={(e) => handlePartnerChange(partner.id, 'middlename', e.target.value)}
                       />
                       <Input 
                         label="Last Name" 
                         name={`partner-lastName-${partner.id}`}
-                        value={partner.lastName}
-                        onChange={(e) => handlePartnerChange(partner.id, 'lastName', e.target.value)}
+                        value={partner.lastname}
+                        onChange={(e) => handlePartnerChange(partner.id, 'lastname', e.target.value)}
                         required
                       />
                     </div>
 
-                    {/* Row 2: Standard Contact Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Input 
                         label="Email Address" 
@@ -270,8 +297,8 @@ export default function StepUserRegistration({ initialData, onNext }: Step1Props
                       <NumericInput 
                         label="Mobile Number" 
                         name={`partner-mobile-${partner.id}`}
-                        value={partner.mobileNo}
-                        onChange={(val) => handlePartnerChange(partner.id, 'mobileNo', val)}
+                        value={partner.mobileno}
+                        onChange={(val) => handlePartnerChange(partner.id, 'mobileno', val)}
                         maxLength={10}
                         required
                       />

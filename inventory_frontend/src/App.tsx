@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from "./Context/AuthContext"
 import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { LoginPage } from "./Pages/Login.page";
+import { ProductsPage } from "./Pages/Products.page";
+import { LoaderProvider } from "./Context/LoaderContext";
 
 // A clean route-guard to prevent accessing pages while logged out
 const ProtectedRoute = ({ children }: { children }) => {
@@ -18,13 +20,14 @@ const PublicRoute = ({ children }: { children }) => {
   const { isLoggedIn } = useAuth();
   
   // If already logged in, fast-forward them straight to the dashboard board
-  return !isLoggedIn ? children : <Navigate to="/onroll-board" replace />;
+  return !isLoggedIn ? children : <Navigate to="/" replace />;
 };
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider> 
+        <LoaderProvider>
         {/* Global Toast configuration setup */}
         <Toaster 
           position="top-right" 
@@ -59,15 +62,27 @@ function App() {
           <Route 
             path="/onroll-board" 
             element={
-              <ProtectedRoute>
+              <PublicRoute>
                 <Onboarding />
+              </PublicRoute>
+            } 
+          />
+
+          {/* Secure Protected Products Paths */}
+          <Route 
+            path="/product" 
+            element={
+              <ProtectedRoute>
+                <ProductsPage />
               </ProtectedRoute>
             } 
           />
 
+
           {/* Catch-all Wildcard fallback route redirecting back to root */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </LoaderProvider>
       </AuthProvider>
     </BrowserRouter>
   )

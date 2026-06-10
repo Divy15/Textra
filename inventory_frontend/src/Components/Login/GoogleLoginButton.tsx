@@ -33,7 +33,7 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ onGoogleLo
       <div className="text-center pt-2 border-t border-gray-100">
         <p className="text-xs text-gray-500">
           Don't have an generated account?{" "}
-          <a href="#onroll-board" className="text-burgundy font-semibold hover:text-camel transition-colors underline decoration-camel/30">
+          <a href="/onroll-board" className="text-burgundy font-semibold hover:text-camel transition-colors underline decoration-camel/30">
             Access Onroll Board
           </a>
         </p>

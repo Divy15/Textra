@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model BusinessUuid {
+  id               Int      @id @default(autoincrement())
+  uuid             String   @unique @default(uuid()) @db.Uuid
+  business_type    String
+  is_form_completed Boolean  @default(false)
+  is_verified      Boolean  @default(false)
+  created_at       DateTime @default(now())
+
+  // Relations
+  owners          BusinessOwner[]
+  photos          BusinessPhoto[]
+  owner_documents BusinessOwnerDocument?
+  shop_documents  BusinessShopDocument?
+
+  @@map("business_uuid")
+}
+
+model BusinessOwner {
+  id         Int    @id @default(autoincrement())
+  uuid       String @db.Uuid
+  firstname  String
+  middlename  String? // Optional field, in case they don't have a middle name
+  lastname   String
+  email      String
+  mobile     String
+
+  // Relation to BusinessUuid
+  business   BusinessUuid @relation(fields: [uuid], references: [uuid], onDelete: Cascade)
+
+  // 1. A single business cannot have duplicate owner emails
+  // 2. A single business cannot have duplicate owner mobiles
+  @@unique([uuid, email])  // 👈 Added composite unique
+  @@unique([uuid, mobile]) // 👈 Added composite unique
+
+  @@map("business_owner")
+}
+
+model BusinessPhoto {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @db.Uuid // Added this so photos are linked to a specific business
+  photo_id  String   @unique
+  upload_at DateTime @default(now())
+
+  // Relation to BusinessUuid
+  business  BusinessUuid @relation(fields: [uuid], references: [uuid], onDelete: Cascade)
+
+  @@map("business_photo")
+}
+
+model BusinessOwnerDocument {
+  id                 Int    @id @default(autoincrement())
+  uuid               String @unique @db.Uuid // @unique makes this a 1-to-1 relationship
+  aadharcard_nu      String
+  aadharcard_photo_id String
+  pancard_nu         String
+  pancard_photo_id   String
+
+  // Relation to BusinessUuid
+  business           BusinessUuid @relation(fields: [uuid], references: [uuid], onDelete: Cascade)
+
+  @@map("business_owner_document")
+}
+
+model BusinessShopDocument {
+  id                   Int    @id @default(autoincrement())
+  uuid                 String @unique @db.Uuid // @unique makes this a 1-to-1 relationship
+  gst_nu               String? // Optional, not all businesses have GST
+  gst_photo_id         String?
+  shoplicense_nu       String? // Optional
+  shoplicense_photo_id String?
+  udhayma_nu           String? // Optional (Udyam Registration)
+  udhayma_photo_id     String?
+
+  // Relation to BusinessUuid
+  business             BusinessUuid @relation(fields: [uuid], references: [uuid], onDelete: Cascade)
+
+  @@map("business_shop_document")
+}
+
+model ErrorLog {
+  id             Int      @id @default(autoincrement())
+  project_name   String
+  error_id       String   // e.g., "controllers_auth_login_js"
+  error_type     String   // "critical" or "user_error"
+  error          Json     // Stores the full stack trace and message as JSON
+  user_footprint String?  // User ID, IP address, or tracking fingerprint
+  api            String   // The API endpoint route (e.g., /api/v1/onboard)
+  req_body       Json?
+  req_params     Json?
+  req_query      Json?
+  created_at     DateTime @default(now())
+
+  @@map("error_logs")
+}

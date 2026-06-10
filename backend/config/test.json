@@ -1,0 +1,13 @@
+{
+    "APP":{
+        "CONFIG":{
+            "PORT": "SERVER_PORT"
+        },
+        "AWS":{
+            "REGION": "AWS_REGION",
+            "ACCESS_KEY": "AWS_ACCOUNT_ACCESS_KEY",
+            "SECRET_KEY": "AWS_SECRET_KEY",
+            "BUCKET": "AWS_BUCKET_NAME"
+        }
+    }
+}

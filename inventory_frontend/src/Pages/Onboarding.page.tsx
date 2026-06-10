@@ -2,10 +2,19 @@ import { useState } from 'react';
 import StepUserRegistration from '../Components/Onroll/StepUserRegistration';
 import StepShopDetails from '../Components/Onroll/StepShopDetails';
 import StepDocumentationDetails from '../Components/Onroll/StepDocumentationDetails';
+import {OnBoardingOwnerDetailsStore} from "../Service/OnBoarding.service.tsx"
+import { useLoader } from '../Context/LoaderContext'; 
+import { PulseLoader } from 'react-spinners'; 
+import toast from 'react-hot-toast';
+
+// Define a unique identifier key for this page component
+const ONBOARDING_LOADER_ID = "onboarding_form_container";
 
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(1);
   const [userId, setUserId] = useState<string | null>(null);
+
+  const { showComponentLoader, hideComponentLoader, isComponentLoading } = useLoader();
   
   const [onboardingData, setOnboardingData] = useState({
     step1: {},
@@ -15,13 +24,17 @@ export default function Onboarding() {
 
   const handleStep1Submit = async (data: any) => {
     setOnboardingData(prev => ({ ...prev, step1: data }));
+    showComponentLoader(ONBOARDING_LOADER_ID);
     try {
-      if (!userId) {
-        setUserId("USR_" + Math.floor(Math.random() * 100000));
-      }
+      const apiResponse = await OnBoardingOwnerDetailsStore(data);
+      setUserId(apiResponse.businessUuid);
       setCurrentStep(2);
+      toast.success("User profile saved successfully!");
     } catch (error) {
-      console.error("Failed to save personal records", error);
+      const serverErrorMessage = error?.response?.data?.message || "Failed to save profile. Please try again.";
+      toast.error(serverErrorMessage);
+    } finally {
+      hideComponentLoader(ONBOARDING_LOADER_ID); // 👈 5. Turn off loader when API returns or fails
     }
   };
 
@@ -41,19 +54,33 @@ export default function Onboarding() {
   };
 
   const handleCancelForm = () => {
-    if (confirm("Are you sure you want to cancel? Progress will be lost.")) {
-      window.location.href = "/login";
-    }
+      window.location.href = "/";
   };
 
   return (
     <div 
-      className="max-w-4xl mx-auto my-8 p-6 rounded-lg shadow-lg border text-gray-800"
+      className="max-w-4xl mx-auto my-8 p-6 rounded-lg shadow-lg border text-gray-800 relative"
       style={{ 
         backgroundColor: 'var(--color-off-white)', 
         borderColor: 'var(--color-camel)' 
       }}
     >
+      {/* 6. Isolated Component Loader Overlay Structure */}
+      {isComponentLoading(ONBOARDING_LOADER_ID) && (
+        <div 
+          className="absolute inset-0 w-full h-full rounded-lg flex flex-col justify-center items-center backdrop-blur-sm"
+          style={{ 
+            backgroundColor: 'rgba(253, 251, 247, 0.7)', // Semi-transparent overlay tint
+            zIndex: 50 
+          }}
+        >
+          <PulseLoader color="var(--color-burgundy)" size={15} margin={4} />
+          <p className="mt-3 text-sm font-semibold tracking-wide" style={{ color: 'var(--color-burgundy)' }}>
+            Saving information...
+          </p>
+        </div>
+      )}
+
       {/* Structural Progression Bar Header */}
       <div 
         className="flex justify-between items-center mb-8 border-b pb-4"
@@ -68,6 +95,7 @@ export default function Onboarding() {
         <button 
           onClick={handleCancelForm} 
           className="text-sm font-semibold text-red-600 hover:text-red-800 hover:underline transition-colors"
+          disabled={isComponentLoading(ONBOARDING_LOADER_ID)} // Disable interactions during calls
         >
           Cancel Setup
         </button>
