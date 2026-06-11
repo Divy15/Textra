@@ -51,8 +51,9 @@ model BusinessOwner {
 
 model BusinessPhoto {
   id        Int      @id @default(autoincrement())
-  uuid      String   @db.Uuid // Added this so photos are linked to a specific business
-  photo_id  String   @unique
+  uuid      String   @db.Uuid
+  photoname String
+  s3_key    String
   upload_at DateTime @default(now())
 
   // Relation to BusinessUuid

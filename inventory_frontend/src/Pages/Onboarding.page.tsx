@@ -11,8 +11,8 @@ import toast from 'react-hot-toast';
 const ONBOARDING_LOADER_ID = "onboarding_form_container";
 
 export default function Onboarding() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState(2);
+  const [userId, setUserId] = useState<string | null>('78f58f86-2ada-4ce0-9622-5c460126d7e3');
 
   const { showComponentLoader, hideComponentLoader, isComponentLoading } = useLoader();
   
@@ -144,7 +144,11 @@ export default function Onboarding() {
           <StepUserRegistration initialData={onboardingData.step1} onNext={handleStep1Submit} />
         )}
         {currentStep === 2 && (
-          <StepShopDetails initialData={onboardingData.step2} onNext={handleStep2Submit} onBack={() => setCurrentStep(1)} />
+          <StepShopDetails 
+          businessId={userId}
+          initialData={onboardingData.step2} 
+          onNext={handleStep2Submit} 
+          onBack={() => setCurrentStep(1)} />
         )}
         {currentStep === 3 && (
           <StepDocumentationDetails initialData={onboardingData.step3} onSubmit={handleStep3Submit} onBack={() => setCurrentStep(2)} />

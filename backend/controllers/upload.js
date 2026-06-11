@@ -2,6 +2,7 @@
 const { PutObjectCommand, S3Client } = require("@aws-sdk/client-s3");
 const config = require("config");
 const path = require("path");
+const { prisma } = require("../db/prisma");
 
 const s3Client = new S3Client({
   region: config.get("APP.AWS.REGION"),
@@ -12,6 +13,7 @@ const s3Client = new S3Client({
 });
 
 async function uploadDocumentController(req, res, next) {
+  const {businessId} = req.body;
   try {
     // 1. Check if a file was actually passed by Multer middleware
     if (!req.file) {
@@ -29,7 +31,7 @@ async function uploadDocumentController(req, res, next) {
 
     // 3. Build the upload payload parameter map
     const uploadParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
+      Bucket: config.get("APP.AWS.BUCKET"),
       Key: s3Key,
       Body: req.file.buffer,         // Binary memory buffer from Multer
       ContentType: req.file.mimetype // Ensures files preview correctly instead of downloading
@@ -38,16 +40,21 @@ async function uploadDocumentController(req, res, next) {
     // 4. Fire the upload execution pipeline to AWS S3
     await s3Client.send(new PutObjectCommand(uploadParams));
 
-    // 5. Construct the permanent public URL pointing to the new object location
-    const documentUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+    const savedPhoto = await prisma.businessPhoto.create({
+      data: {
+        uuid: businessId,                 // Maps to your model's business relation uuid
+        photoname: req.file.originalname, // The original name of the file uploaded
+        s3_key: s3Key,                    // Saved S3 storage location path string
+      }
+    });
 
+    // 8. Return the response, mapping the auto-incremented database 'id' to 'shopphoto_id'
     return res.status(201).json({
       success: true,
-      message: "File successfully dispatched to object storage cloud storage.",
+      message: "File successfully dispatched to object storage and saved to database.",
       data: {
-        file_name: req.file.originalname,
-        s3_key: s3Key,
-        url: documentUrl // Return this to frontend or save it straight to your Postgres database
+        shopphoto_id: savedPhoto.id,      
+        file_name: savedPhoto.photoname,
       }
     });
 

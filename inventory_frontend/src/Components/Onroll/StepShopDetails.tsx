@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import { Input } from "../CommonComponent/Input";
 import { FileUpload } from "../CommonComponent/FileUpload";
+import { OnBoardingUploadStorePhoto } from "../../Service/OnBoarding.service.jsx";
+import toast from 'react-hot-toast'; 
 
 interface Step2Props {
+  businessId: string;
   initialData: any;
   onNext: (data: any) => void;
   onBack: () => void;
 }
 
 export default function StepShopDetails({
+  businessId,
   initialData,
   onNext,
   onBack,
@@ -20,8 +24,10 @@ export default function StepShopDetails({
     state: initialData.state || "",
     country: initialData.country || "",
     pincode: initialData.pincode || "",
-    shopPhoto: initialData.shopPhoto || null,
+    shopphoto_id: initialData.shopphoto_id || null, // 👈 1. Added this to track the integer ID
   });
+  
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,10 +35,22 @@ export default function StepShopDetails({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onNext(formData);
+    if (isUploading) {
+      toast.error("Please wait for the photo upload to complete.");
+      return;
+    }
+    
+    // Validation guard to ensure they uploaded the photo before passing data next
+    if (!formData.shopphoto_id) {
+      toast.error("Please upload a shop photo to proceed.");
+      return;
+    }
+
+    // 👈 3. This now passes the entire payload (including shopphoto_id) to your onNext handler
+    console.log(formData);
+    onNext(formData); 
   };
 
-  // Encodes the address for a clean, non-authenticated public map preview link
   const mapSearchQuery = encodeURIComponent(
     `${formData.shopAddress} ${formData.city} ${formData.pincode}`,
   );
@@ -95,32 +113,40 @@ export default function StepShopDetails({
         />
       </div>
 
-      {/* 4. Embedded Free Map Preview Layer */}
-      {formData.shopAddress && (
-        <div className="w-full h-48 rounded-md overflow-hidden border my-2">
-          <iframe
-            title="Location Preview"
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            loading="lazy"
-            src={`https://maps.google.com/maps?q=${mapSearchQuery}&t=&z=13&ie=UTF-8&iwloc=&output=embed`}
-          />
-        </div>
-      )}
-
-      {/* 5. Upload Photo Section (Placed cleanly after address metrics) */}
+      {/* 5. Upload Photo Section */}
       <div className="w-full pt-2">
         <FileUpload
           label="Upload Shop Photo"
           allowedType="image"
-          onUploadApi={async (file) => {
-            // 1. Simulates your backend upload/S3 process
-            // 2. Stores the file object into your local form state
-            setFormData((prev) => ({ ...prev, shopPhoto: file }));
-            return Promise.resolve();
+          onUploadApi={async (file: File) => {
+            console.log("file", file);
+            setIsUploading(true);
+            try {
+              const payload = new FormData();
+              payload.append("file", file);
+              payload.append("businessId", businessId);
+              payload.append("filename", file.name);
+
+              const resultData = await OnBoardingUploadStorePhoto(payload);
+
+              // 👈 2. Update state with both the visual URL and the DB primary key integer
+              setFormData((prev) => ({ 
+                ...prev, 
+                shopPhoto: resultData?.url || file,
+                shopphoto_id: resultData?.shopphoto_id || null // Captured from your API response data mapping
+              }));
+
+              toast.success("Your shop photo has been uploaded successfully!");
+              
+            } catch (error) {
+              console.error("Upload error:", error);
+              toast.error("Failed to upload shop photo. Please try again.");
+              throw error; 
+            } finally {
+              setIsUploading(false);
+            }
           }}
-          onSuccess={() => console.log("Shop photo staged successfully")}
+          onSuccess={() => console.log("Shop photo workflow completed.")}
         />
       </div>
 
@@ -135,12 +161,15 @@ export default function StepShopDetails({
         </button>
         <button
           type="submit"
-          className="px-6 py-2.5 rounded-md font-medium text-white transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shadow-sm hover:shadow-md"
+          disabled={isUploading}
+          className={`px-6 py-2.5 rounded-md font-medium text-white transition-all duration-300 transform shadow-sm hover:shadow-md ${
+            isUploading ? "opacity-50 cursor-not-allowed" : "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+          }`}
           style={{ backgroundColor: '#C19A6B' }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#a88256')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#C19A6B')}
+          onMouseEnter={(e) => !isUploading && (e.currentTarget.style.backgroundColor = '#a88256')}
+          onMouseLeave={(e) => !isUploading && (e.currentTarget.style.backgroundColor = '#C19A6B')}
         >
-          Save & Next
+          {isUploading ? "Uploading..." : "Save & Next"}
         </button>
       </div>
     </form>

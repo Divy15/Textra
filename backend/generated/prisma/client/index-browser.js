@@ -142,7 +142,8 @@ exports.Prisma.BusinessOwnerScalarFieldEnum = {
 exports.Prisma.BusinessPhotoScalarFieldEnum = {
   id: 'id',
   uuid: 'uuid',
-  photo_id: 'photo_id',
+  photoname: 'photoname',
+  s3_key: 's3_key',
   upload_at: 'upload_at'
 };
 

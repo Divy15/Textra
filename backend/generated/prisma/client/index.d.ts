@@ -3702,21 +3702,24 @@ export namespace Prisma {
   export type BusinessPhotoMinAggregateOutputType = {
     id: number | null
     uuid: string | null
-    photo_id: string | null
+    photoname: string | null
+    s3_key: string | null
     upload_at: Date | null
   }
 
   export type BusinessPhotoMaxAggregateOutputType = {
     id: number | null
     uuid: string | null
-    photo_id: string | null
+    photoname: string | null
+    s3_key: string | null
     upload_at: Date | null
   }
 
   export type BusinessPhotoCountAggregateOutputType = {
     id: number
     uuid: number
-    photo_id: number
+    photoname: number
+    s3_key: number
     upload_at: number
     _all: number
   }
@@ -3733,21 +3736,24 @@ export namespace Prisma {
   export type BusinessPhotoMinAggregateInputType = {
     id?: true
     uuid?: true
-    photo_id?: true
+    photoname?: true
+    s3_key?: true
     upload_at?: true
   }
 
   export type BusinessPhotoMaxAggregateInputType = {
     id?: true
     uuid?: true
-    photo_id?: true
+    photoname?: true
+    s3_key?: true
     upload_at?: true
   }
 
   export type BusinessPhotoCountAggregateInputType = {
     id?: true
     uuid?: true
-    photo_id?: true
+    photoname?: true
+    s3_key?: true
     upload_at?: true
     _all?: true
   }
@@ -3841,7 +3847,8 @@ export namespace Prisma {
   export type BusinessPhotoGroupByOutputType = {
     id: number
     uuid: string
-    photo_id: string
+    photoname: string
+    s3_key: string
     upload_at: Date
     _count: BusinessPhotoCountAggregateOutputType | null
     _avg: BusinessPhotoAvgAggregateOutputType | null
@@ -3867,7 +3874,8 @@ export namespace Prisma {
   export type BusinessPhotoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     uuid?: boolean
-    photo_id?: boolean
+    photoname?: boolean
+    s3_key?: boolean
     upload_at?: boolean
     business?: boolean | BusinessUuidDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["businessPhoto"]>
@@ -3875,7 +3883,8 @@ export namespace Prisma {
   export type BusinessPhotoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     uuid?: boolean
-    photo_id?: boolean
+    photoname?: boolean
+    s3_key?: boolean
     upload_at?: boolean
     business?: boolean | BusinessUuidDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["businessPhoto"]>
@@ -3883,7 +3892,8 @@ export namespace Prisma {
   export type BusinessPhotoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     uuid?: boolean
-    photo_id?: boolean
+    photoname?: boolean
+    s3_key?: boolean
     upload_at?: boolean
     business?: boolean | BusinessUuidDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["businessPhoto"]>
@@ -3891,11 +3901,12 @@ export namespace Prisma {
   export type BusinessPhotoSelectScalar = {
     id?: boolean
     uuid?: boolean
-    photo_id?: boolean
+    photoname?: boolean
+    s3_key?: boolean
     upload_at?: boolean
   }
 
-  export type BusinessPhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "photo_id" | "upload_at", ExtArgs["result"]["businessPhoto"]>
+  export type BusinessPhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "uuid" | "photoname" | "s3_key" | "upload_at", ExtArgs["result"]["businessPhoto"]>
   export type BusinessPhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     business?: boolean | BusinessUuidDefaultArgs<ExtArgs>
   }
@@ -3914,7 +3925,8 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       uuid: string
-      photo_id: string
+      photoname: string
+      s3_key: string
       upload_at: Date
     }, ExtArgs["result"]["businessPhoto"]>
     composites: {}
@@ -4342,7 +4354,8 @@ export namespace Prisma {
   interface BusinessPhotoFieldRefs {
     readonly id: FieldRef<"BusinessPhoto", 'Int'>
     readonly uuid: FieldRef<"BusinessPhoto", 'String'>
-    readonly photo_id: FieldRef<"BusinessPhoto", 'String'>
+    readonly photoname: FieldRef<"BusinessPhoto", 'String'>
+    readonly s3_key: FieldRef<"BusinessPhoto", 'String'>
     readonly upload_at: FieldRef<"BusinessPhoto", 'DateTime'>
   }
     
@@ -8147,7 +8160,8 @@ export namespace Prisma {
   export const BusinessPhotoScalarFieldEnum: {
     id: 'id',
     uuid: 'uuid',
-    photo_id: 'photo_id',
+    photoname: 'photoname',
+    s3_key: 's3_key',
     upload_at: 'upload_at'
   };
 
@@ -8476,7 +8490,8 @@ export namespace Prisma {
     NOT?: BusinessPhotoWhereInput | BusinessPhotoWhereInput[]
     id?: IntFilter<"BusinessPhoto"> | number
     uuid?: UuidFilter<"BusinessPhoto"> | string
-    photo_id?: StringFilter<"BusinessPhoto"> | string
+    photoname?: StringFilter<"BusinessPhoto"> | string
+    s3_key?: StringFilter<"BusinessPhoto"> | string
     upload_at?: DateTimeFilter<"BusinessPhoto"> | Date | string
     business?: XOR<BusinessUuidScalarRelationFilter, BusinessUuidWhereInput>
   }
@@ -8484,26 +8499,29 @@ export namespace Prisma {
   export type BusinessPhotoOrderByWithRelationInput = {
     id?: SortOrder
     uuid?: SortOrder
-    photo_id?: SortOrder
+    photoname?: SortOrder
+    s3_key?: SortOrder
     upload_at?: SortOrder
     business?: BusinessUuidOrderByWithRelationInput
   }
 
   export type BusinessPhotoWhereUniqueInput = Prisma.AtLeast<{
     id?: number
-    photo_id?: string
     AND?: BusinessPhotoWhereInput | BusinessPhotoWhereInput[]
     OR?: BusinessPhotoWhereInput[]
     NOT?: BusinessPhotoWhereInput | BusinessPhotoWhereInput[]
     uuid?: UuidFilter<"BusinessPhoto"> | string
+    photoname?: StringFilter<"BusinessPhoto"> | string
+    s3_key?: StringFilter<"BusinessPhoto"> | string
     upload_at?: DateTimeFilter<"BusinessPhoto"> | Date | string
     business?: XOR<BusinessUuidScalarRelationFilter, BusinessUuidWhereInput>
-  }, "id" | "photo_id">
+  }, "id">
 
   export type BusinessPhotoOrderByWithAggregationInput = {
     id?: SortOrder
     uuid?: SortOrder
-    photo_id?: SortOrder
+    photoname?: SortOrder
+    s3_key?: SortOrder
     upload_at?: SortOrder
     _count?: BusinessPhotoCountOrderByAggregateInput
     _avg?: BusinessPhotoAvgOrderByAggregateInput
@@ -8518,7 +8536,8 @@ export namespace Prisma {
     NOT?: BusinessPhotoScalarWhereWithAggregatesInput | BusinessPhotoScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"BusinessPhoto"> | number
     uuid?: UuidWithAggregatesFilter<"BusinessPhoto"> | string
-    photo_id?: StringWithAggregatesFilter<"BusinessPhoto"> | string
+    photoname?: StringWithAggregatesFilter<"BusinessPhoto"> | string
+    s3_key?: StringWithAggregatesFilter<"BusinessPhoto"> | string
     upload_at?: DateTimeWithAggregatesFilter<"BusinessPhoto"> | Date | string
   }
 
@@ -8883,7 +8902,8 @@ export namespace Prisma {
   }
 
   export type BusinessPhotoCreateInput = {
-    photo_id: string
+    photoname: string
+    s3_key: string
     upload_at?: Date | string
     business: BusinessUuidCreateNestedOneWithoutPhotosInput
   }
@@ -8891,12 +8911,14 @@ export namespace Prisma {
   export type BusinessPhotoUncheckedCreateInput = {
     id?: number
     uuid: string
-    photo_id: string
+    photoname: string
+    s3_key: string
     upload_at?: Date | string
   }
 
   export type BusinessPhotoUpdateInput = {
-    photo_id?: StringFieldUpdateOperationsInput | string
+    photoname?: StringFieldUpdateOperationsInput | string
+    s3_key?: StringFieldUpdateOperationsInput | string
     upload_at?: DateTimeFieldUpdateOperationsInput | Date | string
     business?: BusinessUuidUpdateOneRequiredWithoutPhotosNestedInput
   }
@@ -8904,26 +8926,30 @@ export namespace Prisma {
   export type BusinessPhotoUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     uuid?: StringFieldUpdateOperationsInput | string
-    photo_id?: StringFieldUpdateOperationsInput | string
+    photoname?: StringFieldUpdateOperationsInput | string
+    s3_key?: StringFieldUpdateOperationsInput | string
     upload_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BusinessPhotoCreateManyInput = {
     id?: number
     uuid: string
-    photo_id: string
+    photoname: string
+    s3_key: string
     upload_at?: Date | string
   }
 
   export type BusinessPhotoUpdateManyMutationInput = {
-    photo_id?: StringFieldUpdateOperationsInput | string
+    photoname?: StringFieldUpdateOperationsInput | string
+    s3_key?: StringFieldUpdateOperationsInput | string
     upload_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BusinessPhotoUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     uuid?: StringFieldUpdateOperationsInput | string
-    photo_id?: StringFieldUpdateOperationsInput | string
+    photoname?: StringFieldUpdateOperationsInput | string
+    s3_key?: StringFieldUpdateOperationsInput | string
     upload_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9438,7 +9464,8 @@ export namespace Prisma {
   export type BusinessPhotoCountOrderByAggregateInput = {
     id?: SortOrder
     uuid?: SortOrder
-    photo_id?: SortOrder
+    photoname?: SortOrder
+    s3_key?: SortOrder
     upload_at?: SortOrder
   }
 
@@ -9449,14 +9476,16 @@ export namespace Prisma {
   export type BusinessPhotoMaxOrderByAggregateInput = {
     id?: SortOrder
     uuid?: SortOrder
-    photo_id?: SortOrder
+    photoname?: SortOrder
+    s3_key?: SortOrder
     upload_at?: SortOrder
   }
 
   export type BusinessPhotoMinOrderByAggregateInput = {
     id?: SortOrder
     uuid?: SortOrder
-    photo_id?: SortOrder
+    photoname?: SortOrder
+    s3_key?: SortOrder
     upload_at?: SortOrder
   }
 
@@ -10156,13 +10185,15 @@ export namespace Prisma {
   }
 
   export type BusinessPhotoCreateWithoutBusinessInput = {
-    photo_id: string
+    photoname: string
+    s3_key: string
     upload_at?: Date | string
   }
 
   export type BusinessPhotoUncheckedCreateWithoutBusinessInput = {
     id?: number
-    photo_id: string
+    photoname: string
+    s3_key: string
     upload_at?: Date | string
   }
 
@@ -10271,7 +10302,8 @@ export namespace Prisma {
     NOT?: BusinessPhotoScalarWhereInput | BusinessPhotoScalarWhereInput[]
     id?: IntFilter<"BusinessPhoto"> | number
     uuid?: UuidFilter<"BusinessPhoto"> | string
-    photo_id?: StringFilter<"BusinessPhoto"> | string
+    photoname?: StringFilter<"BusinessPhoto"> | string
+    s3_key?: StringFilter<"BusinessPhoto"> | string
     upload_at?: DateTimeFilter<"BusinessPhoto"> | Date | string
   }
 
@@ -10590,7 +10622,8 @@ export namespace Prisma {
 
   export type BusinessPhotoCreateManyBusinessInput = {
     id?: number
-    photo_id: string
+    photoname: string
+    s3_key: string
     upload_at?: Date | string
   }
 
@@ -10621,19 +10654,22 @@ export namespace Prisma {
   }
 
   export type BusinessPhotoUpdateWithoutBusinessInput = {
-    photo_id?: StringFieldUpdateOperationsInput | string
+    photoname?: StringFieldUpdateOperationsInput | string
+    s3_key?: StringFieldUpdateOperationsInput | string
     upload_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BusinessPhotoUncheckedUpdateWithoutBusinessInput = {
     id?: IntFieldUpdateOperationsInput | number
-    photo_id?: StringFieldUpdateOperationsInput | string
+    photoname?: StringFieldUpdateOperationsInput | string
+    s3_key?: StringFieldUpdateOperationsInput | string
     upload_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BusinessPhotoUncheckedUpdateManyWithoutBusinessInput = {
     id?: IntFieldUpdateOperationsInput | number
-    photo_id?: StringFieldUpdateOperationsInput | string
+    photoname?: StringFieldUpdateOperationsInput | string
+    s3_key?: StringFieldUpdateOperationsInput | string
     upload_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

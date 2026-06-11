@@ -11,7 +11,7 @@ const upload = multer({
 
 router.post(
   "/doc", 
-  upload.single("document"), 
+  upload.single("file"), 
   uploadCtrl.uploadDocumentController
 );
 
